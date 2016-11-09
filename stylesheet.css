@@ -1,10 +1,21 @@
 *{
-	margin: 0; 
-	padding: 0; 
+	margin: 0;
+	padding: 0;
 	border: 0;
 	text-align: center;
 }
-
+html, body {
+	height: 100%;
+	margin: 0;
+	padding: 0;
+}
+#map {
+	height: 550px;
+	width: 960px;
+	border: 1px solid #000;
+	display: block;
+	margin: auto;
+}
 #canvasid{
 	border: 1px solid #000;
 }
