@@ -1,24 +1,42 @@
-//Recuperar contexto do canvas
-var canvas = document.getElementById('canvasid');
-var ctx = canvas.getContext('2d');
 var map;
 
-//Constantes
-const WIDTH = 960;
-const HEIGHT = 550;
+//Cria nรณ (lat=latitude, lng=longitude, fac=cor)
+function createMarker(lat, lng, fac){
+	var myLatLng = {lat: lat, lng: lng};
+	var marker = new google.maps.Marker({
+		position: myLatLng,
+		map: map,
+		icon: {
+			path: google.maps.SymbolPath.CIRCLE,
+			scale: 5,
+			strokeColor: fac
+		},
+		draggable: false
+	});
+	return myLatLng;
+}
 
-//Ajustar altura e largura do canvas
-ctx.canvas.width = WIDTH;
-ctx.canvas.height = HEIGHT;
+//Liga os pontos da mesma faccao
+function createPath(lls, cols, id){
+	for(var i=0; i<id; ++i){
+		for(var j=i; j<id; ++j){
+			if(cols[i] == cols[j]){
+				var markersPath = new google.maps.Polyline({
+    				path: [lls[i], lls[j]],
+    				geodesic: true,
+    				strokeColor: cols[i],
+    				strokeOpacity: 1.0,
+    				strokeWeight: 2
+  				});
+
+				markersPath.setMap(map);
+			}
+			
+		}
+	}
+}
 
 //Mostrar mapa dos EUA
-// var map_img = new Image();
-// map_img.src = 'us_map.png';
-// map_img.onload = function(){
-// 	ctx.drawImage(map_img, 0, 0, WIDTH, HEIGHT);
-// }
-
-//Mostrar mapa dos EUA (maps)
 function initMap() {
 	//map init
 	map = new google.maps.Map(document.getElementById('map'), {
@@ -26,51 +44,19 @@ function initMap() {
 		zoom: 4
 	});
 
-	//first marker
-	var myLatLng = {lat: 42.179271, lng: -83.446302};
-	var marker = new google.maps.Marker({
-    position: myLatLng,
-		map: map,
-		icon: {
-      path: google.maps.SymbolPath.CIRCLE,
-      scale: 5,
-			strokeColor: 'red'
-    },
-    draggable: false,
-		label: 'Trump voter 1',
-    title: 'Trump voter 1'
-  });
+	var myLatLngs = [], myColors = [], id=0;
 
-	//second marker
-	var myLatLngTwo = {lat: 35.667946, lng: -95.442801};
-	var secondMarker = new google.maps.Marker({
-		position: myLatLngTwo,
-		map: map,
-		icon: {
-			path: google.maps.SymbolPath.CIRCLE,
-			scale: 5,
-			strokeColor: 'red'
-		},
-		draggable: false,
-		label: 'Trump voter 2',
-		title: 'Trump voter 2'
-	});
+	//Exemplos para teste
+	myColors[id] = '#008';
+	myLatLngs[id++] = createMarker(42.179271, -83.446302, myColors[id-1]);
+	myColors[id] = '#F55';
+	myLatLngs[id++] = createMarker(35.667946, -95.442801, myColors[id-1]);
+	myColors[id] = '#F55';
+	myLatLngs[id++] = createMarker(40.667946, -75.442801, myColors[id-1]);
+	myColors[id] = '#F00';
+	myLatLngs[id++] = createMarker(40.667946, -95.442801, myColors[id-1]);
+	myColors[id] = '#00F';
+	myLatLngs[id++] = createMarker(41.179271, -90.446302, myColors[id-1]);
 
-	//path coordinates
-	var planCoordinates = [
-    myLatLng,
-    myLatLngTwo
-  ];
-
-	//path between the two of them
-	var markersPath = new google.maps.Polyline({
-    path: planCoordinates,
-    geodesic: true,
-    strokeColor: '#FF0000',
-    strokeOpacity: 1.0,
-    strokeWeight: 2
-  });
-
-	//setting path to map
-	markersPath.setMap(map);
+	createPath(myLatLngs, myColors, id);
 }
