@@ -60,3 +60,11 @@ function initMap() {
 
 	createPath(myLatLngs, myColors, id);
 }
+
+//Filtra JSON
+function addressFilter(json){
+	json = json.filter(function(obj){
+		return obj['location'] != undefined;
+	});
+	return json;
+}
