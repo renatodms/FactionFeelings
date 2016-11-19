@@ -1,6 +1,6 @@
 var map;
 
-//Cria nรณ (lat=latitude, lng=longitude, fac=cor)
+//Cria um marcador no mapa (lat=latitude, lng=longitude, fac=cor)
 function createMarker(lat, lng, fac){
 	var myLatLng = {lat: lat, lng: lng};
 	var marker = new google.maps.Marker({
@@ -16,22 +16,29 @@ function createMarker(lat, lng, fac){
 	return myLatLng;
 }
 
-//Liga os pontos da mesma faccao
-function createPath(lls, cols, id){
+//Verifica se o elemento esta contido no conjunto
+function isContained(elm, conj){
+	for(var i=0; conj[i]!=undefined; ++i){
+		if (conj[i] == elm) return true;
+	}
+	return false;
+}
+
+//Liga os pontos que possuem conexao
+function createPath(lls, con, id){
 	for(var i=0; i<id; ++i){
 		for(var j=i; j<id; ++j){
-			if(cols[i] == cols[j]){
+			if (isContained(i, con[j])){
 				var markersPath = new google.maps.Polyline({
     				path: [lls[i], lls[j]],
     				geodesic: true,
-    				strokeColor: cols[i],
+    				strokeColor: 'black',
     				strokeOpacity: 1.0,
     				strokeWeight: 2
   				});
 
 				markersPath.setMap(map);
 			}
-			
 		}
 	}
 }
@@ -44,27 +51,20 @@ function initMap() {
 		zoom: 4
 	});
 
-	var myLatLngs = [], myColors = [], id=0;
+	var myLatLngs = [], connections = [], id=0;
 
-	//Exemplos para teste
-	myColors[id] = '#008';
-	myLatLngs[id++] = createMarker(42.179271, -83.446302, myColors[id-1]);
-	myColors[id] = '#F55';
-	myLatLngs[id++] = createMarker(35.667946, -95.442801, myColors[id-1]);
-	myColors[id] = '#F55';
-	myLatLngs[id++] = createMarker(40.667946, -75.442801, myColors[id-1]);
-	myColors[id] = '#F00';
-	myLatLngs[id++] = createMarker(40.667946, -95.442801, myColors[id-1]);
-	myColors[id] = '#00F';
-	myLatLngs[id++] = createMarker(41.179271, -90.446302, myColors[id-1]);
+	//Recuperar banco de dados
+	var json = $.getJSON('http://cin.ufpe.br/~rdms/taia/db.JSON', function(db){}).complete(function(){
+		var db = $.parseJSON(json.responseText);
 
-	createPath(myLatLngs, myColors, id);
-}
+		//Tratar objeto por objeto
+		for (var i=0; i<4; ++i){
+			var color = '#F00';
+			if (db[i].faction == 0) color = '#00F';
+			connections[i] = db[i].userConnections;
+			myLatLngs[id++] = createMarker(db[i].coordinates[1], db[i].coordinates[0], color);
+		}
 
-//Filtra JSON
-function addressFilter(json){
-	json = json.filter(function(obj){
-		return obj['location'] != undefined;
+		createPath(myLatLngs, connections, id);
 	});
-	return json;
 }
