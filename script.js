@@ -18,26 +18,53 @@ function createMarker(lat, lng, fac){
 
 //Verifica se o elemento esta contido no conjunto
 function isContained(elm, conj){
-	for(var i=0; conj[i]!=undefined; ++i){
-		if (conj[i] == elm) return true;
+	if (conj != undefined){
+		for(var i=0; conj[i]!=undefined; ++i){
+			if (conj[i] == elm) return true;
+		}
 	}
 	return false;
 }
 
-//Liga os pontos que possuem conexao
-function createPath(lls, con, id){
-	for(var i=0; i<id; ++i){
-		for(var j=i; j<id; ++j){
-			if (isContained(i, con[j])){
-				var markersPath = new google.maps.Polyline({
-    				path: [lls[i], lls[j]],
-    				geodesic: true,
-    				strokeColor: 'black',
-    				strokeOpacity: 1.0,
-    				strokeWeight: 2
-  				});
+//Retorna a cor associada
+function getColor(feel){
+	if (feel == 0 || feel == 4) return '#005';
+	if (feel == 1 || feel == 3) return '#55F';
+	if (feel == 2) return '#00F';
+}
 
-				markersPath.setMap(map);
+//Liga os pontos que possuem conexao
+function createPath(lls, con, id, cor){
+
+	for(var i=0; i<id; ++i){
+		for(var j=0; j<id; ++j){
+
+			var fill = '#9B8065';
+			if (cor[i] == 0) fill = '#01CBCC';
+			if (cor[i] == 1) fill = '#F6F606';
+			if (cor[i] == 2) fill = '#FE5745';
+			if (cor[i] == 3) fill = '#F39D01';
+			if (cor[i] == 4) fill = '#7F7FCF';
+			if (cor[i] == 5) fill = '#E3DE58';
+			if (cor[i] == 6) fill = '#4C3484';
+			if (cor[i] == 7) fill = '#EF4B6D';
+			if (cor[i] == 8) fill = '#9B8065';
+			if (cor[i] == 9) fill = '#5AFFE9';
+			if (cor[i] == 10) fill = '#FD66FE';
+
+			if (isContained(i, con[j])){
+				if (lls[i] != undefined && lls[j] != undefined){
+					console.log(fill);
+					var markersPath = new google.maps.Polyline({
+    					path: [lls[i], lls[j]],
+    					geodesic: true,
+    					strokeColor: fill,
+    					strokeOpacity: 1.0,
+    					strokeWeight: 2
+  					});
+
+					markersPath.setMap(map);
+				}
 			}
 		}
 	}
@@ -51,20 +78,28 @@ function initMap() {
 		zoom: 4
 	});
 
-	var myLatLngs = [], connections = [], id=0;
+	var myLatLngs = [], connections = [], colors = [], id_max=0;
+	console.log(db);
 
-	//Recuperar banco de dados
-	var json = $.getJSON('http://cin.ufpe.br/~rdms/taia/db.JSON', function(db){}).complete(function(){
-		var db = $.parseJSON(json.responseText);
-
-		//Tratar objeto por objeto
-		for (var i=0; i<4; ++i){
-			var color = '#F00';
-			if (db[i].faction == 0) color = '#00F';
-			connections[i] = db[i].userConnections;
-			myLatLngs[id++] = createMarker(db[i].coordinates[1], db[i].coordinates[0], color);
+	//Tratar objeto por objeto
+	var h = 11;
+		for (var i=0;  i<parseInt(db[h].length*0.3); ++i){
+			connections[i] = db[h][i].connections;
+			myLatLngs[id_max] = createMarker(parseFloat(db[h][i].latitude), parseFloat(db[h][i].longitude), getColor(db[h][i].feel));
+			colors[id_max++] = h;
 		}
-
-		createPath(myLatLngs, connections, id);
-	});
+		h = 0;
+		for (var i=0;  i<parseInt(db[h].length*0.3); ++i){
+			connections[i] = db[h][i].connections;
+			myLatLngs[id_max] = createMarker(parseFloat(db[h][i].latitude), parseFloat(db[h][i].longitude), getColor(db[h][i].feel));
+			colors[id_max++] = h;
+		}
+		h = 5;
+		for (var i=0;  i<parseInt(db[h].length*0.3); ++i){
+			connections[i] = db[h][i].connections;
+			myLatLngs[id_max] = createMarker(parseFloat(db[h][i].latitude), parseFloat(db[h][i].longitude), getColor(db[h][i].feel));
+			colors[id_max++] = h;
+		}
+	
+	createPath(myLatLngs, connections, id_max+1, colors);
 }

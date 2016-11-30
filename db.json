@@ -1,0 +1,11 @@
+var db = [
+{"id": 0, "latitude":"38.8991", "longitude":"-77.0290", "feel":0, "connections":[1, 2]},
+
+{"id": 1, "latitude":"35.667946", "longitude":"-95.442801", "feel":1, "connections":[0]},
+
+{"id": 2, "latitude":"40.667946", "longitude":"-75.442801", "feel":2, "connections":[]},
+
+{"id": 3, "latitude":"41.179271", "longitude":"-90.446302", "feel":3, "connections":[0, 1, 2]},
+
+{"id": 4, "latitude":"35.179271", "longitude":"-90.446302", "feel":4, "connections":[0, 1]}
+];
